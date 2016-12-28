@@ -1,6 +1,7 @@
 provider "aws" {
   region                   = "us-west-2"
   shared_credentials_file  = "/var/lib/jenkins/.aws/credentials"
+  // shared_credentials_file  = "/Users/robert.hough/.aws/credentials"
 }
 
 ### Define our EC2 instances here
@@ -8,6 +9,7 @@ module "ec2_bastion" {
   source = "modules/ec2_bastion"
   vpc_id = "vpc-fb01ce92"
   name      = "mybastion"
+  count     = "1"
   environment = "test"
   subnet_id = "subnet-cfdd35b4"
   security_group_id = "sg-721dba1b"
