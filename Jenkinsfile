@@ -40,7 +40,7 @@ node {
                 stash name: "plan", includes: "plan.out"
                 slackSend  color: 'good', message: "Plan Awaiting Approval: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
                 try {
-                    input message: 'Apply Plan?', ok: 'Apply'
+                    // input message: 'Apply Plan?', ok: 'Apply'
                     apply = true
                 } catch (err) {
                    slackSend  color: 'warning', message: "Plan Discarded: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
