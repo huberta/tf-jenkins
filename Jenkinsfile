@@ -54,7 +54,7 @@ node {
                 if (fileExists("status.apply")) {
                     sh "rm status.apply"
                 }
-                sh 'set +e; terraform apply plan.out; echo \$? &amp;gt; status.apply'
+                sh 'set +e; terraform apply plan.out; echo \$? > status.apply'
                 def applyExitCode = readFile('status.apply').trim()
                 if (applyExitCode == "0") {
                    //  slackSend channel: '#ci', color: 'good', message: "Changes Applied ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"    
