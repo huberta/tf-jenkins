@@ -1,5 +1,5 @@
 #!/bin/bash -e
-# no real change here..
+# no real change here.. not here either
  
 PROJECT="$(basename `pwd`)"
 BUCKET="ngc-devops"
