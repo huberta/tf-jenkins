@@ -1,0 +1,56 @@
+#!/bin/sh
+
+### Make sure we have curl installed...
+yum install curl -y
+
+### Install salt
+curl -L https://bootstrap.saltstack.com -o /tmp/install_salt.sh
+sh /tmp/install_salt.sh
+
+### Update the system
+yum update -y
+yum install python-pip jq curl -y
+
+### make sure we have the latest awscli
+pip install --upgrade awscli
+
+#mkdir -p /mnt/dtr
+#mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 $(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone).fs-57e5012e.efs.us-east-2.amazonaws.com:/ /mnt/dtr
+
+pvcreate /dev/xvdf
+vgcreate docker /dev/xvdf
+lvcreate --wipesignatures y -n thinpool docker -l 95%VG
+lvcreate --wipesignatures y -n thinpoolmeta docker -l 1%VG
+lvconvert -y --zero n -c 512K --thinpool docker/thinpool --poolmetadata docker/thinpoolmeta
+
+echo -e "activation { 
+        thin_pool_autoextend_threshold=80 
+        thin_pool_autoextend_percent=20 
+    }" > /etc/lvm/profile/docker-thinpool.profile
+
+lvchange --metadataprofile docker-thinpool docker/thinpool
+lvs -o+seg_monitor
+
+# Install commercial docker engine for UCP
+rpm --import "https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e"
+yum install -y yum-utils
+yum-config-manager --add-repo https://packages.docker.com/1.12/yum/repo/main/centos/7 -y
+yum install docker-engine -y
+
+systemctl enable docker.service
+systemctl start docker.service
+
+# probably a better way to do this
+systemctl stop docker.service
+
+echo -e "{
+    \"storage-driver\": \"devicemapper\",
+    \"storage-opts\": [
+        \"dm.thinpooldev=/dev/mapper/docker-thinpool\",
+        \"dm.use_deferred_removal=true\",
+        \"dm.use_deferred_deletion=true\"
+       ]
+}" >> /etc/docker/daemon.json
+
+rm -rf /var/lib/docker
+systemctl start docker.service

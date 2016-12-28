@@ -1,0 +1,67 @@
+#!/bin/sh
+
+### Make sure we have curl installed...
+yum install curl -y
+
+### Install salt
+curl -L https://bootstrap.saltstack.com -o /tmp/install_salt.sh
+sh /tmp/install_salt.sh
+
+### Update the system
+yum update -y
+yum install python-pip jq curl -y
+
+### make sure we have the latest awscli
+pip install --upgrade awscli
+
+### install openswan to create vpn
+yum install openswan -y
+
+### Add some sysctl.conf stuff
+cat <<EOF>> /etc/sysctl.conf
+
+### VPN
+net.ipv4.ip_forward = 1
+
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+net.ipv4.conf.eth0.accept_redirects = 0
+net.ipv4.conf.eth0.send_redirects = 0
+net.ipv4.conf.lo.accept_redirects = 0
+net.ipv4.conf.lo.send_redirects = 0
+
+EOF
+
+### Create our secrets file
+cat <<EOF>> /etc/ipsec.d/ipsec.secrets
+52.15.106.207 52.6.127.27 : PSK "jd/16Mrb3tjvVzGEE7VYO+2D1b4VcCFuKSDc1ccFzPdES/FLJv8GiyTtlGpSjSIx"
+EOF
+
+chmod 0600 /etc/ipsec.d/ipsec.secrets
+
+### Create the configuration
+cat <<EOF>> /etc/ipsec.d/ipsec.conf
+### Connection to US-EAST-1
+conn aue1-aue2
+        type=tunnel
+        authby=secret
+        left=%defaultroute
+        leftid=52.15.106.207
+        leftnexthop=%defaultroute
+        leftsubnet=172.16.128.0/21
+        right=52.6.127.27
+        rightsubnet=172.16.0.0/19
+        pfs=yes
+        auto=start
+EOF
+
+### Update /etc/ipsec.conf
+sed -i s/^#include/include/g /etc/ipsec.conf
+
+### start service
+service ipsec start
+
+### enable service
+chkconfig ipsec on

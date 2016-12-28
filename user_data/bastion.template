@@ -1,0 +1,73 @@
+#!/bin/sh
+
+### Make sure we have curl installed...
+yum install curl -y
+
+### Install salt
+curl -L https://bootstrap.saltstack.com -o /tmp/install_salt.sh
+sh /tmp/install_salt.sh
+
+### Update the system
+yum update -y
+yum install python-pip jq curl -y
+
+### make sure we have the latest awscli
+pip install --upgrade awscli
+
+### Copy our key to the right place
+cat <<EOF>> /home/ec2-user/.ssh/id_rsa
+-----BEGIN RSA PRIVATE KEY-----
+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
+-----END RSA PRIVATE KEY-----
+EOF
+
+chown ec2-user:ec2-user /home/ec2-user/.ssh/id_rsa
+chmod 0600 /home/ec2-user/.ssh/id_rsa
