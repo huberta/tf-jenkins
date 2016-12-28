@@ -32,17 +32,17 @@ node {
                 currentBuild.result = 'SUCCESS'
             }
             if (exitCode == "1") {
-                slackSend channel: '#devops-notify', color: '#0080ff', message: "Plan Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
+                slackSend color: '#0080ff', message: "Plan Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
                 currentBuild.result = 'FAILURE'
             }
             if (exitCode == "2") {
                 stash name: "plan", includes: "plan.out"
-                slackSend channel: '#devops-notify', color: 'good', message: "Plan Awaiting Approval: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
+                slackSend  color: 'good', message: "Plan Awaiting Approval: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
                 try {
                     input message: 'Apply Plan?', ok: 'Apply'
                     apply = true
                 } catch (err) {
-                   slackSend channel: '#devops-notify', color: 'warning', message: "Plan Discarded: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
+                   slackSend  color: 'warning', message: "Plan Discarded: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
                     apply = false
                     currentBuild.result = 'UNSTABLE'
                 }
@@ -57,9 +57,9 @@ node {
                 sh 'set +e; terraform apply plan.out; echo \$? > status.apply'
                 def applyExitCode = readFile('status.apply').trim()
                 if (applyExitCode == "0") {
-                   slackSend channel: '#devops-notify', color: 'good', message: "Changes Applied ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"    
+                   slackSend color: 'good', message: "Changes Applied ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"    
                 } else {
-                   slackSend channel: '#devops-notify', color: 'danger', message: "Apply Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
+                   slackSend color: 'danger', message: "Apply Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
                     currentBuild.result = 'FAILURE'
                 }
             }
