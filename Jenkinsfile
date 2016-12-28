@@ -30,6 +30,7 @@ node {
             echo "Terraform Plan Exit Code: ${exitCode}"
             if (exitCode == "0") {
                 currentBuild.result = 'SUCCESS'
+                slackSend color: 'good', message: "Starting build ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
             }
             if (exitCode == "1") {
                 slackSend color: '#0080ff', message: "Plan Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER} ()"
