@@ -1,7 +1,7 @@
 provider "aws" {
   region        = "us-west-2"
-  // shared_credentials_file  = "/var/lib/jenkins/.aws/credentials"
-  shared_credentials_file  = "/Users/robert.hough/.aws/credentials"
+  shared_credentials_file  = "/var/lib/jenkins/.aws/credentials"
+  // shared_credentials_file  = "/Users/robert.hough/.aws/credentials"
 }
 
 ### Set up our backend state file
