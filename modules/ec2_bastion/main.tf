@@ -10,7 +10,7 @@ data "template_file" "bastion_user_data" {
 resource "aws_instance" "ec2_bastion" {
     ami = "${var.ami_id}"
     vpc_security_group_ids = ["${split(",", var.security_group_id)}"]
-    subnet_id = "${element(split(",", var.subnet_id), count.index%2)}"
+    subnet_id = "${var.subnet_id}"
     instance_type = "t2.micro"
     key_name = "devops.id_rsa"
     associate_public_ip_address = true
