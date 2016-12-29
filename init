@@ -1,5 +1,4 @@
 #!/bin/bash -e
-# wat?2 go go 
  
 PROJECT="terraform-prod/ngc_us-west-2"
 BUCKET="ngc-devops"
